@@ -24,6 +24,7 @@ namespace Rochas.PDFText.Console
             GetSourceFile(ref sourceFile);
             GetDestinationFile(ref destinationFile);
             GetReplacements(replacements);
+            GetPageNumber(out pageNumber);
 
             try
             {
@@ -90,7 +91,11 @@ namespace Rochas.PDFText.Console
             var keyValue = string.Empty;
             while (string.IsNullOrWhiteSpace(keyValue))
             {
-                System.Console.WriteLine("Enter the replacement items, after type END to continue : ");
+                if (!replacements.Any())
+                    System.Console.WriteLine("Enter the replacement items, after type END to continue : ");
+                else
+                    System.Console.WriteLine("Enter the next replacement item :");
+
                 keyValue = System.Console.ReadLine();
 
                 if (!string.IsNullOrWhiteSpace(keyValue))
@@ -100,23 +105,23 @@ namespace Rochas.PDFText.Console
                         var keyValueArr = keyValue.Split('|');
                         replacements.Add(keyValueArr[0], keyValueArr[1]);
                     }
+                    else if (keyValue.ToUpper().Equals("END"))
+                    {
+                        if (replacements.Any())
+                        {
+                            System.Console.WriteLine("OK.");
+                            System.Console.WriteLine();
+                            return;
+                        }
+                    }
                     else
                     {
-                        keyValue = string.Empty;
                         System.Console.WriteLine("INVALID REPLACEMENT FORMAT, USE: Source|Replacement FORMAT.");
                         System.Console.WriteLine();
                     }
                 }
-                else if (keyValue.ToUpper().Equals("END"))
-                {
-                    if (replacements.Any())
-                    {
-                        System.Console.WriteLine("OK.");
-                        System.Console.WriteLine();
-                    }
-                    else
-                        keyValue = string.Empty;
-                }
+
+                keyValue = string.Empty;
             }
         }
 
@@ -127,8 +132,13 @@ namespace Rochas.PDFText.Console
 
             if (!int.TryParse(page, out pageNumber))
             {
-                System.Console.WriteLine("INVALID PAGE NUMBER.");
-                System.Console.WriteLine();
+                if (!string.IsNullOrWhiteSpace(page))
+                {
+                    System.Console.WriteLine("INVALID PAGE NUMBER.");
+                    System.Console.WriteLine();
+                }
+                else
+                    pageNumber = 1;
             }
             else
             {
